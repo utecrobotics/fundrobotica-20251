@@ -1,0 +1,34 @@
+#!/usr/bin/env python3
+import numpy as np
+import PyKDL as kdl
+from urdf_parser_py.urdf import URDF
+from kdl_parser_py.urdf import treeFromUrdfModel
+
+if __name__ == '__main__':
+
+ robot = URDF.from_xml_file('../urdf/ur5_robot.urdf')  # Indicar la definicion estructural y dinamica del robot.
+ ok, tree = treeFromUrdfModel(robot)
+ chain = tree.getChain("base_link", "ee_link") # Indicar donde empieza y termina la cadena cinematica.
+ 
+ q_min = kdl.JntArray(chain.getNrOfJoints())
+ q_max = kdl.JntArray(chain.getNrOfJoints())
+ 
+ for i in range(chain.getNrOfJoints()):
+  q_min[i] = -np.pi*2
+  q_max[i] = np.pi*2
+
+ fk_solver = kdl.ChainFkSolverPos_recursive(chain)
+ vel_solver = kdl.ChainIkSolverVel_pinv(chain)
+ ik_solver = kdl.ChainIkSolverPos_NR_JL(chain, q_min, q_max, fk_solver, vel_solver) # Resolver la cinematica inversa.
+
+ q_init = kdl.JntArray(chain.getNrOfJoints()) # Variable de la pose inicial, todo en cero para este caso.
+ q_init[0] = -np.pi/4 # Hombro: 45°
+ q_init[1] = np.pi/2 # Codo: 90° => Codo arriba
+ 
+ # pose, es la combinacion de posicion y orientacion del robot.
+ target_pose = kdl.Frame(kdl.Rotation.RPY(0, 0, 0), kdl.Vector(0.5, 0.0, 0.5)) # Indicar la pose deseada.
+
+ q_out = kdl.JntArray(chain.getNrOfJoints()) # Variable de la pose final, todo en cero para este caso.
+
+ ik_solver.CartToJnt(q_init, target_pose, q_out) # Resolver la cinematica la posicion deseada.
+ ql_out = [q_out[i] for i in range(q_out.rows())] # Convertir el resultado a tipo lista.
