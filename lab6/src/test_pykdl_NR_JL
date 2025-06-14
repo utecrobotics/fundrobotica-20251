@@ -22,8 +22,8 @@ if __name__ == '__main__':
  ik_solver = kdl.ChainIkSolverPos_NR_JL(chain, q_min, q_max, fk_solver, vel_solver) # Resolver la cinematica inversa.
 
  q_init = kdl.JntArray(chain.getNrOfJoints()) # Variable de la pose inicial, todo en cero para este caso.
- q_init[0] = -np.pi/4 # Hombro: 45°
- q_init[1] = np.pi/2 # Codo: 90° => Codo arriba
+ q_init[1] = -np.pi/4 # Hombro: 45°
+ q_init[2] = np.pi/2 # Codo: 90° => Codo arriba
  
  # pose, es la combinacion de posicion y orientacion del robot.
  target_pose = kdl.Frame(kdl.Rotation.RPY(0, 0, 0), kdl.Vector(0.5, 0.0, 0.5)) # Indicar la pose deseada.
