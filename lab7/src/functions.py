@@ -1,3 +1,4 @@
+import rbdl
 import PyKDL
 import numpy as np
 from copy import copy
